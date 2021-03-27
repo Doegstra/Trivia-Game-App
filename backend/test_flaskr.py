@@ -96,6 +96,25 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], 'method not allowed')
 
+    def test_search_question_with_result(self):
+        res = self.client().post('/questions_search',
+                                 json={'searchTerm': 'title'})
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data['total_questions'])
+        self.assertTrue(data['questions'])
+
+    def test_search_question_without_result(self):
+        res = self.client().post('/questions_search',
+                                 json={'searchTerm': '?1!da'})
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'bad request')
+
     """
     TODO
     Write at least one test for each test for successful operation and for expected errors.

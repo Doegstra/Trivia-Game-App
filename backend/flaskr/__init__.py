@@ -23,10 +23,8 @@ def create_app(test_config=None):
     app = Flask(__name__)
     setup_db(app)
 
-    # Set up CORS. Allow '*' for origins. TODO Delete the sample route after completing the TODOs
-    # cors = CORS(app, resources={r"/*": {"origins": "*"}})
-
-    CORS(app)
+    # Set up CORS. Allow '*' for origins.
+    cors = CORS(app, resources={'/*': {'origins': '*'}})
 
     # Use the after_request decorator to set Access-Control-Allow
     @app.after_request
@@ -102,7 +100,6 @@ def create_app(test_config=None):
                                     answer=body.get('answer'),
                                     category=body.get('category'),
                                     difficulty=body.get('difficulty'))
-
             new_question.insert()
 
             return jsonify({
@@ -112,16 +109,29 @@ def create_app(test_config=None):
         except:
             abort(405)
 
-    '''
-  @TODO:
-  Create a POST endpoint to get questions based on a search term.
-  It should return any questions for whom the search term
-  is a substring of the question.
+    # Endpoint to get questions based on a search term
+    @ app.route('/questions_search', methods=["POST"])
+    def search_question():
+        body = request.get_json()
+        search = body.get('searchTerm')
+        try:
+            relevant_questions = Question.query.order_by(Question.id).filter(
+                Question.question.ilike('%{}%'.format(search))).all()
 
-  TEST: Search by any phrase. The questions list will update to include
-  only question that include that string within their question.
-  Try using the word "title" to start.
-  '''
+            # 404 if no results found
+            if (len(relevant_questions) == 0):
+                abort(404)
+
+            formatted_questions = paginate_questions(
+                request, relevant_questions)
+
+            return jsonify({
+                'success': True,
+                'questions': formatted_questions,
+                'total_questions': len(Question.query.all())
+            })
+        except:
+            abort(400)
 
     '''
   @TODO:
@@ -143,6 +153,16 @@ def create_app(test_config=None):
   one question at a time is displayed, the user is allowed to answer
   and shown whether they were correct or not.
   '''
+
+    # 400 Bad Request: The server cannot or will not process the request due to an apparent client error
+    # (e.g., malformed request syntax, size too large, invalid request message framing, or deceptive request routing).
+    @app.errorhandler(400)
+    def error_bad_request(error):
+        return jsonify({
+            "success": False,
+            "error": 400,
+            "message": "bad request"
+        }), 400
 
     # 404 Not Found: The requested resource could not be found but may be available in the future.
     # Subsequent requests by the client are permissible.
