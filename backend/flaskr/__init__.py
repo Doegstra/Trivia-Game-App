@@ -9,7 +9,8 @@ from models import setup_db, Question, Category
 QUESTIONS_PER_PAGE = 10
 
 
-def paginate_questions(request, selection):  # helper method to paginate questions
+def paginate_questions(request, selection):
+    # helper method to paginate questions
     page = request.args.get('page', 1, type=int)
     start = (page - 1) * QUESTIONS_PER_PAGE
     end = start + QUESTIONS_PER_PAGE
@@ -40,7 +41,8 @@ def create_app(test_config=None):
     def get_categories():
 
         formatted_categories = {
-            cat.id: cat.type for cat in Category.query.order_by(Category.id).all()}
+            cat.id: cat.type for cat in
+            Category.query.order_by(Category.id).all()}
 
         if len(formatted_categories) == 0:
             abort(404)
@@ -50,15 +52,18 @@ def create_app(test_config=None):
             'categories': formatted_categories
         })
 
-    # Endpoint to handle GET requests for questions, including pagination (every QUESTIONS_PER_PAGE questions).
+    # Endpoint to handle GET requests for questions, including pagination
+    #  (every QUESTIONS_PER_PAGE questions).
     @app.route('/questions', methods=["GET"])
     def get_questions():
         questions = Question.query.order_by(Question.id).all()
         current_questions = paginate_questions(request, questions)
 
-        # React frontend expects dictionary, c.f. https://knowledge.udacity.com/questions/233578
+        # React frontend expects dictionary,
+        # c.f. https://knowledge.udacity.com/questions/233578
         formatted_categories = {
-            cat.id: cat.type for cat in Category.query.order_by(Category.id).all()}
+            cat.id: cat.type for cat in
+            Category.query.order_by(Category.id).all()}
 
         if len(current_questions) == 0:
             abort(404)
@@ -88,7 +93,7 @@ def create_app(test_config=None):
                 'success': True,
                 'deleted': question_id
             })
-        except:
+        except Exception:
             abort(422)
 
     # Endpoint to POST a new question
@@ -106,7 +111,7 @@ def create_app(test_config=None):
                 'success': True,
                 'created': new_question.id
             })
-        except:
+        except Exception:
             abort(405)
 
     # Endpoint to get questions based on a search term
@@ -130,7 +135,7 @@ def create_app(test_config=None):
                 'questions': formatted_questions,
                 'total_questions': len(Question.query.all())
             })
-        except:
+        except Exception:
             abort(400)
 
     '''
@@ -154,8 +159,9 @@ def create_app(test_config=None):
   and shown whether they were correct or not.
   '''
 
-    # 400 Bad Request: The server cannot or will not process the request due to an apparent client error
-    # (e.g., malformed request syntax, size too large, invalid request message framing, or deceptive request routing).
+    # 400 Bad Request: The server cannot or will not process the request due
+    #  to an apparent client error (e.g., malformed request syntax, size too
+    #  large, invalid request message framing, or deceptive request routing).
     @app.errorhandler(400)
     def error_bad_request(error):
         return jsonify({
@@ -164,8 +170,9 @@ def create_app(test_config=None):
             "message": "bad request"
         }), 400
 
-    # 404 Not Found: The requested resource could not be found but may be available in the future.
-    # Subsequent requests by the client are permissible.
+    # 404 Not Found: The requested resource could not be found but may be
+    #  available in the future.  Subsequent requests by the client are
+    #  permissible.
     @ app.errorhandler(404)
     def error_not_found(error):
         return jsonify({
@@ -183,7 +190,8 @@ def create_app(test_config=None):
         }), 405
 
     # 422 Unprocessable Entity:
-    # The request was well-formed but was unable to be followed due to semantic errors.
+    # The request was well-formed but was unable to be followed due to
+    #  semantic errors.
     @ app.errorhandler(422)
     def error_unprocessable_entity(error):
         return jsonify({
