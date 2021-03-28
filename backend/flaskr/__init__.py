@@ -7,6 +7,7 @@ import random
 from models import setup_db, Question, Category
 
 QUESTIONS_PER_PAGE = 10
+# TODO: Secrets are stored as environment variables.
 
 
 def paginate_questions(request, selection):
@@ -138,14 +139,24 @@ def create_app(test_config=None):
         except Exception:
             abort(400)
 
-    '''
-  @TODO:
-  Create a GET endpoint to get questions based on category.
+    # Endpoint to get questions based on category.
+    @app.route('/categories/<int:category_id>/questions')
+    def get_questions_for_category(category_id):
+        category = Category.query.filter(
+            Category.id == category_id).one_or_none()
+        if category is None:
+            abort(422)
 
-  TEST: In the "List" tab / main screen, clicking on one of the
-  categories in the left column will cause only questions of that
-  category to be shown.
-  '''
+        questions = Question.query.order_by(Question.id).filter(
+            Question.category == category_id).all()
+        formatted_questions = paginate_questions(request, questions)
+
+        return jsonify({
+            'success': True,
+            'questions': formatted_questions,
+            'total_questions': len(Question.query.all()),
+            'current_category': category_id
+        })
 
     '''
   @TODO:
