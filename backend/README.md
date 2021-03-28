@@ -85,3 +85,24 @@ The API will return three error types when requests fail:
 * `404`: Resource Not Found
 * `405`: Method not allowed
 * `422`: Not Processable
+
+### Endpoint Library
+#### GET /categories
+* General:
+  * Returns a list of category objects and success value
+  * Results are paginated in groups of 10. Include a request argument to choose page number, starting from 1.
+* Sample: `curl -X GET http://127.0.0.1:5000/categories`
+
+```JSON
+{
+  "categories": {
+    "1": "Science",
+    "2": "Art",
+    "3": "Geography",
+    "4": "History",
+    "5": "Entertainment",
+    "6": "Sports"
+  },
+  "success": true
+}
+```
