@@ -159,20 +159,57 @@ def create_app(test_config=None):
         })
 
     '''
-  @TODO:
-  Create a POST endpoint to get questions to play the quiz.
-  This endpoint should take category and previous question parameters
-  and return a random questions within the given category,
-  if provided, and that is not one of the previous questions.
+    @TODO:
+    Create a POST endpoint to get questions to play the quiz.
+    This endpoint should take category and previous question parameters
+    and return a random questions within the given category,
+    if provided, and that is not one of the previous questions.
 
-  TEST: In the "Play" tab, after a user selects "All" or a category,
-  one question at a time is displayed, the user is allowed to answer
-  and shown whether they were correct or not.
-  '''
+    TEST: In the "Play" tab, after a user selects "All" or a category,
+    one question at a time is displayed, the user is allowed to answer
+    and shown whether they were correct or not.
+    '''
+
+    # Endpoint to play the quiz
+    @app.route('/quizzes', methods=["POST"])
+    def play_quiz():
+        body = request.get_json()
+        category = body.get('quiz_category', None)
+        category_id = category.get('id')
+        previous_questions_ids = body.get('previous_questions', None)
+
+        if category is None:
+            abort(400)
+
+        if category_id == 0:
+            questions = Question.query.order_by(Question.id).all()
+        elif len(Question.query.order_by(Question.id).filter(
+                Question.category == category_id).all()) > 0:
+            questions = Question.query.order_by(Question.id).filter(
+                Question.category == category_id).all()
+        else:
+            abort(404)
+
+        # only take questions not in previous questions
+        relevant_questions = [
+            q for q in questions if q.id not in previous_questions_ids]
+
+        if len(relevant_questions):
+            next_question = random.choice(relevant_questions)
+        else:
+            return jsonify({
+                'success': True
+            })
+
+        return jsonify({
+            'success': True,
+            'question': next_question.format()
+        })
 
     # 400 Bad Request: The server cannot or will not process the request due
     #  to an apparent client error (e.g., malformed request syntax, size too
     #  large, invalid request message framing, or deceptive request routing).
+
     @app.errorhandler(400)
     def error_bad_request(error):
         return jsonify({
