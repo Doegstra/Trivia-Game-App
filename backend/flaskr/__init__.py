@@ -7,7 +7,6 @@ import random
 from models import setup_db, Question, Category
 
 QUESTIONS_PER_PAGE = 10
-# TODO: Secrets are stored as environment variables.
 
 
 def paginate_questions(request, selection):
@@ -158,18 +157,6 @@ def create_app(test_config=None):
             'current_category': category_id
         })
 
-    '''
-    @TODO:
-    Create a POST endpoint to get questions to play the quiz.
-    This endpoint should take category and previous question parameters
-    and return a random questions within the given category,
-    if provided, and that is not one of the previous questions.
-
-    TEST: In the "Play" tab, after a user selects "All" or a category,
-    one question at a time is displayed, the user is allowed to answer
-    and shown whether they were correct or not.
-    '''
-
     # Endpoint to play the quiz
     @app.route('/quizzes', methods=["POST"])
     def play_quiz():
@@ -178,7 +165,7 @@ def create_app(test_config=None):
         category_id = category.get('id')
         previous_questions_ids = body.get('previous_questions', None)
 
-        if category is None:
+        if category_id is None:
             abort(400)
 
         if category_id == 0:
@@ -194,9 +181,9 @@ def create_app(test_config=None):
         relevant_questions = [
             q for q in questions if q.id not in previous_questions_ids]
 
-        if len(relevant_questions):
+        if len(relevant_questions) > 0:
             next_question = random.choice(relevant_questions)
-        else:
+        else:  # if all questions have been played
             return jsonify({
                 'success': True
             })

@@ -15,11 +15,9 @@ class TriviaTestCase(unittest.TestCase):
         self.app = create_app()
         self.client = self.app.test_client
         self.database_name = "trivia_test"
-        # self.database_path = "postgres://{}/{}".format(
-        #     'localhost:5432', self.database_name)
 
-        _user_name = "postgres"
-        _password = "root"
+        _user_name = os.environ.get('TRIVIA_DB_USER')
+        _password = os.environ.get('TRIVIA_DB_PASSWORD')
         self.database_path = "postgresql://{}:{}@{}/{}".format(
             _user_name, _password, 'localhost:5432', self.database_name)
         setup_db(self.app, self.database_path)
@@ -133,12 +131,43 @@ class TriviaTestCase(unittest.TestCase):
 
         self.assertEqual(res.status_code, 422)
         self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'unprocessable entity')
 
-    """
-    TODO
-    Write at least one test for each test for successful operation and
-    for expected errors.
-    """
+    def test_quiz_successfully(self):
+        res = self.client().post('/quizzes',
+                                 json={'previous_questions': [],
+                                       'quiz_category': {
+                                           'type': 'Science',
+                                           'id': '1'
+                                 }})
+        data = json.loads(res.data)
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data['question'])
+
+    def test_quiz_fail_id_too_high(self):
+        res = self.client().post('/quizzes',
+                                 json={'previous_questions': [],
+                                       'quiz_category': {
+                                           'type': 'Science',
+                                           'id': '10000'
+                                 }})
+        data = json.loads(res.data)
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'resource not found')
+
+    def test_quiz_fail_no_id(self):
+        res = self.client().post('/quizzes',
+                                 json={'previous_questions': [],
+                                       'quiz_category': {
+                                           'type': 'Science',
+                                           'id': None
+                                 }})
+        data = json.loads(res.data)
+        self.assertEqual(res.status_code, 400)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'bad request')
 
 
 # Make the tests conveniently executable
