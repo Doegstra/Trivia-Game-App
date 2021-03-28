@@ -225,3 +225,87 @@ The API will return three error types when requests fail:
   "success": true
 }
 ```
+
+#### POST /questions_search
+* General:
+  * Searches questions based on provided search term. Returns a list of question objects containing the search term, the total number of questions containing the search term and the success value.
+* Sample: `curl http://127.0.0.1:5000/questions_search -X POST  -H "Content-Type: application/json" -d '{"search_term":"title"}'`
+* Sample (Windows): `curl http://127.0.0.1:5000/questions_search -X POST  -H "Content-Type: application/json" -d "{\"searchTerm\":\"title\"}"`
+
+```JSON
+{
+  "questions": [
+    {
+      "answer": "Maya Angelou",
+      "category": 4,
+      "difficulty": 2,
+      "id": 5,
+      "question": "Whose autobiography is entitled 'I Know Why the Caged Bird Sings'?"
+    },
+    {
+      "answer": "Edward Scissorhands",
+      "category": 5,
+      "difficulty": 3,
+      "id": 6,
+      "question": "What was the title of the 1990 fantasy directed by Tim Burton about a young man with multi-bladed appendages?"
+    }
+  ],
+  "success": true,
+  "total_questions": 20
+}
+```
+
+#### GET /categories/{category_id}/questions
+* General:
+  * Based on a given category id this will return a list of all question objects in the category.
+* Sample: `curl -X GET http://127.0.0.1:5000/categories/1/questions`
+
+```JSON
+{
+  "current_category": 1,
+  "questions": [
+    {
+      "answer": "The Liver",
+      "category": 1,
+      "difficulty": 4,
+      "id": 20,
+      "question": "What is the heaviest organ in the human body?"
+    },
+    {
+      "answer": "Alexander Fleming",
+      "category": 1,
+      "difficulty": 3,
+      "id": 21,
+      "question": "Who discovered penicillin?"
+    },
+    {
+      "answer": "Blood",
+      "category": 1,
+      "difficulty": 4,
+      "id": 22,
+      "question": "Hematology is a branch of medicine involving the study of what?"
+    }
+  ],
+  "success": true,
+  "total_questions": 20
+}
+```
+
+#### POST /quizzes
+* General:
+  * Based on the current category and the previously asked questions, this request will return the next question to answer. 
+* Sample: `curl http://127.0.0.1:5000/quizzes -X POST  -H "Content-Type: application/json" -d '{"previous_questions":[], "quiz_category":{"type":"Science", "id":1}}'`
+* Sample (Windows): `curl http://127.0.0.1:5000/quizzes -X POST  -H "Content-Type: application/json" -d "{\"previous_questions\":[], \"quiz_category\":{\"type\":\"Science\", \"id\":1}}"`
+
+```JSON
+{
+  "question": {
+    "answer": "Alexander Fleming",
+    "category": 1,
+    "difficulty": 3,
+    "id": 21,
+    "question": "Who discovered penicillin?"
+  },
+  "success": true
+}
+```
