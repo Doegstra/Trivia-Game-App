@@ -199,3 +199,29 @@ The API will return three error types when requests fail:
   "total_questions": 20
 }
 ```
+
+#### DELETE /questions/{question_id}
+* General:
+  * Deletes the question of the given ID if it exists. Returns the id of the deleted question and the success value.
+* Sample: `curl -X DELETE http://127.0.0.1:5000/questions/1`
+
+```JSON
+{
+  "deleted": 2,
+  "success": true
+}
+```
+
+
+#### POST /questions
+* General:
+  * Creates a new question using the submitted question, answer, category and difficulty. Returns the id of the created question and the success value.
+* Sample: `curl http://127.0.0.1:5000/questions -X POST  -H "Content-Type: application/json" -d '{"question":"What is the highest mountain in Germany?", "answer":"Zugspitze", "category":"3", "difficulty":"2"}'`
+* Sample (Windows): `curl http://127.0.0.1:5000/questions -X POST  -H "Content-Type: application/json" -d "{\"question\":\"What is the highest mountain in Germany?\", \"answer\":\"Zugspitze\", \"category\":\"3\", \"difficulty\":\"2\"}"`
+
+```JSON
+{
+  "created": 26,
+  "success": true
+}
+```
